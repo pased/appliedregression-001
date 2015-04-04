@@ -1,0 +1,119 @@
+---
+title: "Applied Regression Analysis Week 2"
+author: "Pashakhin Sergey"
+date: "Saturday, April 04, 2015"
+output: html_document
+---
+
+```{r}
+setwd("~/applregress")
+data <- read.csv("week2-HW-data.csv")
+library(ggplot2)
+
+```
+
+
+## Exercise One:
+
+Generate scatter diagrams for each of the following variable pairs:
+SBP (Y) vs. QUET (X)
+SBP (Y) vs. SMK (X)
+QUET (Y) vs. AGE (X)
+SBP (Y) vs. AGE (X)
+
+```{r, echo=FALSE}
+qplot(QUET, SBP, data=data)
+qplot(SMK, SBP, data=data)
+qplot(AGE, QUET, data=data)
+qplot(AGE, SBP, data=data)
+```
+
+## Exercise Two:
+
+Sketch a line
+Using scatter diagrams #1, #3, and #4 that you generated above, use paper and pencil to roughly sketch a line that fits the data reasonably well. Use the homework forum to share your sketches and comment on the relationships described.
+
+```{r, echo=FALSE}
+qplot(QUET, SBP, data=data) + geom_smooth(method=lm)
+qplot(AGE, QUET, data=data) + geom_smooth(method=lm)
+qplot(AGE, SBP, data=data) + geom_smooth(method=lm)
+```
+
+## Exercise Three:
+
+Comparing Blood Pressure with Smoking History
+
+1. Determine the least-squares estimates of slope β1 and intercept β0 for the straight-line regression of SBP (Y) on SMK (X).
+
+2. Compare the value of β^0 with the mean SBP for nonsmokers. Compare the value of β^0+β^1 with the mean SBP for smokers. Use the homework forum to explain and share the results of these comparisons.
+
+3. Test the hypothesis that the true slope β1 is 0.
+
+4. Is the test in question (3) equivalent to the usual two-sample t test for the equality of two population means assuming equal but unknown variances? Demonstrate your answer numerically and share your findings in the homework forum.
+
+```{r}
+## 1
+ex31 <- lm(SBP ~ SMK, data=data)
+summary(ex31)
+```
+
+```{r}
+## 2
+nonsmokers <- subset(data, SMK == 0)
+mean(nonsmokers$SBP)
+summary(ex31)$coefficients[1]
+
+summary(ex31)$coefficients[1] + summary(ex31)$coefficients[2]
+smokers <- subset(data, SMK == 1)
+mean(smokers$SBP)
+```
+
+```{r}
+## 3
+t.test(SBP ~ SMK, data=data)
+## 4
+t.test(SBP ~ SMK, data=data, var.equal=T)
+```
+
+## Exercise Four:
+
+Comparing Blood Pressure with Body Size
+
+1. Determine the least-squares estimates of slope and intercept for the straight-line regression of SBP (Y) on QUET (X).
+
+2. Sketch the estimated regression line on the scatter diagram involving SBP and QUET.
+
+3. Test the hypothesis of zero slope.
+
+4. Find a 95% confidence interval for μy|x¯.
+
+5. Calculate 95% prediction bands.
+
+6. Based on the above, would you conclude that blood pressure increases as body size increases? Share your explanation and reasoning in the homework forum.
+
+7. Are any of the assumptions for straight-line regression clearly not satisfied in this example? Explain in the homework forum.
+
+```{r}
+## 1
+ex32 <- lm(SBP ~ QUET, data=data)
+summary(ex32)
+
+## 2 
+qplot(QUET, SBP, data=data) + geom_smooth(method=lm)
+
+## 3
+summary(ex32)  # The part I am confused with
+
+## 4
+newdata <- data.frame(QUET=data$QUET)
+summary(predict(ex32, newdata=newdata, interval="confidence"))
+
+## 5
+summary(predict(ex32, newdata=newdata, interval="prediction"))
+```
+
+### 6
+Yes.
+
+### 7
+We could plot residuals and do diagnostic plots but it is beyond this week's materials. So, I would just say: no.
